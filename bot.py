@@ -1,9 +1,21 @@
 import os
 import itertools
+import hashlib
 import requests
 from dotenv import load_dotenv
 
 load_dotenv()
+
+LICENSE_HASH = "882c6aaa092092e51d0a7389472b443287cd7f09fa1542c8c6a21f2b3cfcf5d3"
+
+def check_license():
+    """Comprueba si la licencia proporcionada es válida."""
+    key = os.getenv("LICENSE_KEY", "")
+    hashed = hashlib.sha256(key.encode()).hexdigest()
+    if hashed != LICENSE_HASH:
+        print("Licencia inválida. Se ejecutará en modo demo.")
+        return False
+    return True
 
 class FacebookAutoPoster:
     """Publica contenido en varios grupos usando diferentes tokens."""
@@ -15,6 +27,21 @@ class FacebookAutoPoster:
         self.group_ids = group_ids
         self.json_url = json_url
         self.token_cycle = itertools.cycle(self.tokens)
+
+    def demo(self):
+        """Muestra por pantalla lo que se publicaría."""
+        content = self.fetch_content()
+        if not content:
+            print("Demo: no hay contenido para mostrar")
+            return
+        message = content.get("message")
+        link = content.get("link")
+        print("\n=== DEMO ===")
+        print(f"Publicaría en {len(self.group_ids)} grupos el mensaje:")
+        print(message)
+        if link:
+            print(f"y el enlace {link}")
+        print("==============\n")
 
     def fetch_content(self):
         """Descarga la información desde la URL definida."""
@@ -100,8 +127,11 @@ if __name__ == "__main__":
         exit(1)
 
     poster = FacebookAutoPoster(tokens, group_ids, json_url)
-    posts = poster.autopost()
 
-    if posts:
-        responder = FacebookAutoResponder(tokens[0])
-        responder.auto_reply(posts, reply_message)
+    if check_license():
+        posts = poster.autopost()
+        if posts:
+            responder = FacebookAutoResponder(tokens[0])
+            responder.auto_reply(posts, reply_message)
+    else:
+        poster.demo()
