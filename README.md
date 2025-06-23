@@ -46,6 +46,8 @@ antes de usarlo.
    GROUP_IDS=123456789,987654321
    JSON_URL=https://tu-servidor.com/post.json
    REPLY_MESSAGE=Gracias por tu comentario!
+   # Clave para desbloquear la aplicación
+   LICENSE_KEY=DEMO1234
    ```
 3. Ejecuta el bot:
    ```bash
@@ -54,3 +56,21 @@ antes de usarlo.
 
 El programa mostrará en consola el identificador de cada publicación y las
 respuestas que envía en los comentarios.
+
+## Licencia de uso y modo demo
+
+El código incluye una comprobación sencilla de licencia mediante la
+variable `LICENSE_KEY`. Si la clave no coincide con la configurada en el
+archivo `bot.py`, el bot se ejecutará en **modo demo** y no realizará
+publicaciones reales. Para generar el hash de tu propia clave puedes usar:
+
+```bash
+python - <<'PY'
+import hashlib
+print(hashlib.sha256('tu_clave'.encode()).hexdigest())
+PY
+```
+
+Sustituye el valor de `LICENSE_HASH` en `bot.py` por el hash obtenido y
+proporciona a tus usuarios la clave correspondiente. Al introducirla en
+`LICENSE_KEY`, podrán desbloquear todas las funciones del bot.
